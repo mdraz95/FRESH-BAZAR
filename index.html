@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#18743b">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Fresh Bazar — ফ্রেশ বাজার</title>
+<style>
+:root{--green:#18743b;--green2:#eaf6ed;--ink:#17251b;--muted:#65736a;--line:#e2e9e3;--bg:#f6f8f5}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(130deg,#145c30,#27934b);color:#fff;padding:18px 16px 22px;border-radius:0 0 24px 24px}
+.top{display:flex;align-items:center;gap:12px;max-width:850px;margin:auto}.logo{width:50px;height:50px;border-radius:16px;background:#fff;color:var(--green);display:grid;place-items:center;font-size:27px}
+h1{font-size:24px;margin:0}header p{margin:4px 0 0;color:#e1f6e6;font-size:13px}.wrap{max-width:850px;margin:auto;padding:14px 14px 100px}
+.notice{background:#fff8df;border:1px solid #f1df9e;color:#624d10;padding:10px 12px;border-radius:12px;font-size:12px;margin-bottom:14px}
+.search{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:13px;font-size:15px;background:white;outline-color:var(--green)}
+.cats{display:flex;gap:8px;overflow:auto;padding:12px 0}.cat{white-space:nowrap;border:1px solid var(--line);border-radius:99px;background:#fff;padding:9px 13px;color:#334638}.cat.active{background:var(--green);color:white;border-color:var(--green)}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:10px 0}.section-title h2{font-size:18px;margin:0}.small{font-size:12px;color:var(--muted)}
+.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.product{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;min-width:0}.emoji{height:75px;background:#f0f8f0;border-radius:12px;display:grid;place-items:center;font-size:42px;margin-bottom:9px}.product h3{font-size:15px;margin:0 0 4px}.price{font-weight:800;color:var(--green);font-size:17px}.unit{font-size:12px;color:var(--muted);font-weight:400}.pfoot{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:9px}.btn{border:0;border-radius:11px;padding:10px 12px;background:var(--green);color:white;font-weight:700;font-size:14px;cursor:pointer}.btn.light{background:var(--green2);color:var(--green)}.btn.gray{background:#edf0ed;color:#334638}.btn.danger{background:#fff0ed;color:#a52b1d}.btn:disabled{opacity:.45}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#ffffffed;backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center}.bottom button{width:100%;max-width:410px}
+.overlay{position:fixed;inset:0;background:#14251bcc;display:none;align-items:flex-end;justify-content:center;z-index:5}.overlay.show{display:flex}.sheet{background:white;border-radius:22px 22px 0 0;padding:20px 16px;max-height:90vh;overflow:auto;width:100%;max-width:600px}.sheet h2{margin:0 0 12px;font-size:20px}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.qty{display:flex;align-items:center;gap:9px}.qty button{width:30px;height:30px;border:0;border-radius:9px;background:var(--green2);color:var(--green);font-size:18px}
+input,textarea,select{width:100%;padding:12px;border:1px solid #d9e2da;border-radius:11px;font:inherit;margin:5px 0 10px;background:#fff}label{font-size:13px;font-weight:700;display:block;margin-top:8px}.totals{background:var(--green2);padding:12px;border-radius:12px;margin:12px 0}.hidden{display:none!important}.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+footer{text-align:center;color:var(--muted);font-size:11px;margin-top:25px}
+@media(min-width:600px){.products{grid-template-columns:repeat(3,minmax(0,1fr))}.emoji{height:95px}}
+</style>
+</head>
+<body>
+<header><div class="top"><div class="logo">🥬</div><div><h1>Fresh Bazar</h1><p>টাটকা পণ্য, সঠিক দাম — ঘরে ঘরে বাজার</p></div></div></header>
+<main class="wrap">
+<div class="notice">প্রাথমিক বিনা-খরচের সংস্করণ। অর্ডার WhatsApp/শেয়ার দিয়ে পাঠানো হবে; প্রথমে নিজের নম্বর সেট করুন।</div>
+<input id="search" class="search" placeholder="🔎 পণ্য খুঁজুন — আলু, ডিম, চাল..." oninput="renderProducts()">
+<div class="cats" id="cats"></div>
+<div class="section-title"><h2>আজকের বাজার</h2><span class="small" id="count"></span></div>
+<div class="products" id="products"></div>
+<div class="section-title" style="margin-top:22px"><h2>Fresh Bazar</h2><button class="btn light" onclick="openAdmin()">⚙️ দোকান সেটিংস</button></div>
+<footer>Fresh Bazar • হোম ডেলিভারি • ক্যাশ অন ডেলিভারি</footer>
+</main>
+<div class="bottom"><button class="btn" onclick="openCart()">🛒 কার্ট দেখুন (<span id="cartCount">0</span>) · ৳<span id="cartTotal">0</span></button></div>
+
+<div class="overlay" id="cartOverlay" onclick="if(event.target===this)closeModal('cartOverlay')"><div class="sheet">
+<h2>🛒 আপনার বাজার</h2><div id="cartItems"></div><div class="totals" id="totals"></div>
+<h3>ডেলিভারির তথ্য</h3>
+<label>আপনার নাম</label><input id="customerName" placeholder="নাম লিখুন">
+<label>মোবাইল নম্বর</label><input id="customerPhone" inputmode="tel" placeholder="01XXXXXXXXX">
+<label>সম্পূর্ণ ঠিকানা</label><textarea id="customerAddress" rows="2" placeholder="এলাকা, রাস্তা, বাসা/দোকান"></textarea>
+<label>বিশেষ নির্দেশনা (ঐচ্ছিক)</label><textarea id="customerNote" rows="2" placeholder="যেমন: পাকা টমেটো দেবেন"></textarea>
+<button class="btn" style="width:100%;padding:14px" onclick="placeOrder()">WhatsApp-এ অর্ডার পাঠান</button>
+<button class="btn gray" style="width:100%;margin-top:8px" onclick="closeModal('cartOverlay')">আরও বাজার করুন</button>
+<p class="small">অর্ডার পাঠানোর আগে WhatsApp-এ বার্তাটি দেখে Send চাপুন।</p>
+</div></div>
+
+<div class="overlay" id="adminOverlay" onclick="if(event.target===this)closeModal('adminOverlay')"><div class="sheet">
+<h2>⚙️ দোকান পরিচালনা</h2><p class="small">এই ডেমোতে পণ্য ও সেটিংস এই ডিভাইসের ব্রাউজারে সংরক্ষিত হবে।</p>
+<div id="adminLogin"><label>অ্যাডমিন PIN (প্রথম PIN: 1234)</label><input id="adminPin" type="password" inputmode="numeric" placeholder="1234"><button class="btn" onclick="loginAdmin()">লগইন</button></div>
+<div id="adminPanel" class="hidden">
+<label>দোকানের WhatsApp নম্বর (দেশের কোডসহ, + ছাড়া)</label><input id="waNumber" inputmode="numeric" placeholder="যেমন 8801XXXXXXXXX">
+<label>ডেলিভারি চার্জ (টাকা)</label><input id="deliveryFee" type="number" min="0" value="0">
+<label>নতুন পণ্যের নাম</label><input id="newName" placeholder="যেমন: বেগুন">
+<div class="admin-grid"><div><label>দাম (৳)</label><input id="newPrice" type="number" min="0" placeholder="40"></div><div><label>একক</label><select id="newUnit"><option>কেজি</option><option>হালি</option><option>ডজন</option><option>পিস</option><option>লিটার</option><option>প্যাকেট</option></select></div></div>
+<div class="admin-grid"><div><label>ক্যাটাগরি</label><select id="newCat"><option>শাকসবজি</option><option>চাল-ডাল</option><option>ডিম ও দুধ</option><option>ফলমূল</option><option>অন্যান্য</option></select></div><div><label>ইমোজি</label><input id="newEmoji" placeholder="🍆"></div></div>
+<button class="btn" onclick="addProduct()">+ পণ্য যোগ করুন</button>
+<h3>পণ্যের দাম/তালিকা</h3><div id="adminProducts"></div>
+<label>নতুন অ্যাডমিন PIN</label><input id="newPin" type="password" inputmode="numeric" placeholder="কমপক্ষে 4 সংখ্যা">
+<button class="btn light" onclick="changePin()">PIN পরিবর্তন</button>
+<button class="btn gray" onclick="exportData()">পণ্যের ব্যাকআপ ডাউনলোড</button>
+</div>
+<button class="btn gray" style="width:100%;margin-top:14px" onclick="closeModal('adminOverlay')">বন্ধ করুন</button>
+</div></div>
+<script>
+const starter=[
+{id:1,name:"আলু",price:35,unit:"কেজি",cat:"শাকসবজি",emoji:"🥔"},
+{id:2,name:"পেঁয়াজ",price:60,unit:"কেজি",cat:"শাকসবজি",emoji:"🧅"},
+{id:3,name:"টমেটো",price:50,unit:"কেজি",cat:"শাকসবজি",emoji:"🍅"},
+{id:4,name:"কাঁচা মরিচ",price:80,unit:"কেজি",cat:"শাকসবজি",emoji:"🌶️"},
+{id:5,name:"বেগুন",price:45,unit:"কেজি",cat:"শাকসবজি",emoji:"🍆"},
+{id:6,name:"শসা",price:40,unit:"কেজি",cat:"শাকসবজি",emoji:"🥒"},
+{id:7,name:"চাল",price:70,unit:"কেজি",cat:"চাল-ডাল",emoji:"🍚"},
+{id:8,name:"মসুর ডাল",price:120,unit:"কেজি",cat:"চাল-ডাল",emoji:"🫘"},
+{id:9,name:"ডিম",price:50,unit:"হালি",cat:"ডিম ও দুধ",emoji:"🥚"},
+{id:10,name:"কলা",price:60,unit:"ডজন",cat:"ফলমূল",emoji:"🍌"}
+];
+let products=load("fb_products",starter), cart=load("fb_cart",{}), settings=load("fb_settings",{wa:"",fee:0,pin:"1234"}), category="সব";
+function load(k,d){try{let x=localStorage.getItem(k);return x?JSON.parse(x):d}catch(e){return d}}
+function save(){localStorage.setItem("fb_products",JSON.stringify(products));localStorage.setItem("fb_cart",JSON.stringify(cart));localStorage.setItem("fb_settings",JSON.stringify(settings))}
+function money(n){return Number(n||0).toLocaleString("en-US",{maximumFractionDigits:2})}
+function catsRender(){let cs=["সব",...new Set(products.map(p=>p.cat))];document.getElementById("cats").innerHTML=cs.map(c=>`<button class="cat ${category===c?'active':''}" onclick="category=${JSON.stringify(c)};catsRender();renderProducts()">${c}</button>`).join("")}
+function renderProducts(){let q=document.getElementById("search").value.trim().toLowerCase();let arr=products.filter(p=>(category==="সব"||p.cat===category)&&(p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q)));document.getElementById("count").textContent=arr.length+"টি পণ্য";document.getElementById("products").innerHTML=arr.map(p=>`<article class="product"><div class="emoji">${p.emoji||"🛍️"}</div><h3>${esc(p.name)}</h3><div class="price">৳${money(p.price)} <span class="unit">/ ${esc(p.unit)}</span></div><div class="pfoot"><span class="small">${esc(p.cat)}</span><button class="btn" onclick="addCart(${p.id})">+ যোগ</button></div></article>`).join("")||"<p>কোনো পণ্য পাওয়া যায়নি।</p>";}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function addCart(id){cart[id]=(cart[id]||0)+1;save();updateCart()}
+function changeQty(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];save();updateCart();openCart()}
+function subtotal(){return products.reduce((s,p)=>s+p.price*(cart[p.id]||0),0)}
+function updateCart(){let count=Object.values(cart).reduce((a,b)=>a+b,0);document.getElementById("cartCount").textContent=count;document.getElementById("cartTotal").textContent=money(subtotal());}
+function openCart(){renderCart();document.getElementById("cartOverlay").classList.add("show")}
+function renderCart(){let chosen=products.filter(p=>cart[p.id]);document.getElementById("cartItems").innerHTML=chosen.map(p=>`<div class="row"><div><b>${esc(p.name)}</b><div class="small">৳${money(p.price)} / ${esc(p.unit)}</div></div><div class="qty"><button onclick="changeQty(${p.id},-1)">−</button><b>${cart[p.id]}</b><button onclick="changeQty(${p.id},1)">+</button></div><b>৳${money(p.price*cart[p.id])}</b></div>`).join("")||"<p>কার্ট খালি। বাজার থেকে পণ্য যোগ করুন।</p>";let fee=Number(settings.fee||0);document.getElementById("totals").innerHTML=`<div class="row"><span>পণ্যের দাম</span><b>৳${money(subtotal())}</b></div><div class="row"><span>ডেলিভারি চার্জ</span><b>৳${money(fee)}</b></div><div class="row" style="border:0"><b>মোট</b><b>৳${money(subtotal()+fee)}</b></div>`}
+function closeModal(id){document.getElementById(id).classList.remove("show")}
+function placeOrder(){let chosen=products.filter(p=>cart[p.id]);if(!chosen.length){alert("আগে কার্টে পণ্য যোগ করুন।");return}let name=document.getElementById("customerName").value.trim(),phone=document.getElementById("customerPhone").value.trim(),address=document.getElementById("customerAddress").value.trim(),note=document.getElementById("customerNote").value.trim();if(!name||!phone||!address){alert("নাম, মোবাইল নম্বর ও ঠিকানা পূরণ করুন।");return}
+let lines=chosen.map(p=>`• ${p.name} — ${cart[p.id]} ${p.unit} × ৳${p.price} = ৳${p.price*cart[p.id]}`);let msg=`🛒 *Fresh Bazar অর্ডার*%0A`.replace("%0A","\n")+`নাম: ${name}\nমোবাইল: ${phone}\nঠিকানা: ${address}\n\n${lines.join("\n")}\n\nপণ্যের দাম: ৳${subtotal()}\nডেলিভারি: ৳${settings.fee||0}\n*সর্বমোট: ৳${subtotal()+Number(settings.fee||0)}*\nপেমেন্ট: ক্যাশ অন ডেলিভারি${note?"\nনির্দেশনা: "+note:""}`;
+if(settings.wa&&/^8801\d{9}$/.test(settings.wa)){window.open("https://wa.me/"+settings.wa+"?text="+encodeURIComponent(msg),"_blank")}else{let blob=new Blob([msg],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="fresh-bazar-order.txt";a.click();URL.revokeObjectURL(url);if(navigator.share){navigator.share({title:"Fresh Bazar অর্ডার",text:msg}).catch(()=>{})}else alert("অর্ডার বার্তা টেক্সট ফাইল হিসেবে সংরক্ষণ করা হয়েছে। দোকানের WhatsApp নম্বর সেট করলে সরাসরি পাঠানো যাবে।")}
+cart={};save();updateCart();closeModal("cartOverlay")}
+function openAdmin(){document.getElementById("adminOverlay").classList.add("show");document.getElementById("adminLogin").classList.remove("hidden");document.getElementById("adminPanel").classList.add("hidden");document.getElementById("adminPin").value=""}
+function loginAdmin(){if(document.getElementById("adminPin").value!==String(settings.pin||"1234")){alert("PIN সঠিক নয়।");return}document.getElementById("adminLogin").classList.add("hidden");document.getElementById("adminPanel").classList.remove("hidden");document.getElementById("waNumber").value=settings.wa||"";document.getElementById("deliveryFee").value=settings.fee||0;renderAdmin()}
+function renderAdmin(){document.getElementById("adminProducts").innerHTML=products.map(p=>`<div class="row"><div style="flex:1"><b>${esc(p.name)}</b><div class="small">${esc(p.unit)} • ${esc(p.cat)}</div></div><input style="width:85px;margin:0" type="number" min="0" value="${p.price}" aria-label="${esc(p.name)} দাম" onchange="updatePrice(${p.id},this.value)"><button class="btn danger" onclick="deleteProduct(${p.id})">মুছুন</button></div>`).join("");}
+function updatePrice(id,v){let p=products.find(x=>x.id===id);if(p&&Number(v)>=0){p.price=Number(v);save();renderProducts();updateCart();renderAdmin()}}
+function deleteProduct(id){if(confirm("পণ্যটি মুছে ফেলবেন?")){products=products.filter(p=>p.id!==id);delete cart[id];save();catsRender();renderProducts();renderAdmin();updateCart()}}
+function addProduct(){let name=document.getElementById("newName").value.trim(),price=Number(document.getElementById("newPrice").value),unit=document.getElementById("newUnit").value,cat=document.getElementById("newCat").value,emoji=document.getElementById("newEmoji").value.trim()||"🛍️";if(!name||document.getElementById("newPrice").value===""||price<0){alert("পণ্যের নাম ও সঠিক দাম লিখুন।");return}products.push({id:Date.now(),name,price,unit,cat,emoji});save();document.getElementById("newName").value="";document.getElementById("newPrice").value="";document.getElementById("newEmoji").value="";catsRender();renderProducts();renderAdmin();alert("পণ্য যোগ হয়েছে।")}
+function changePin(){let p=document.getElementById("newPin").value.trim();if(p.length<4){alert("PIN কমপক্ষে ৪ সংখ্যা/অক্ষরের দিন।");return}settings.pin=p;document.getElementById("newPin").value="";save();alert("PIN পরিবর্তন হয়েছে।")}
+function exportData(){let data=JSON.stringify({products,settings},null,2),blob=new Blob([data],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="fresh-bazar-backup.json";a.click();URL.revokeObjectURL(a.href)}
+document.getElementById("deliveryFee").addEventListener("change",e=>{settings.fee=Math.max(0,Number(e.target.value)||0);save();renderCart()});
+document.getElementById("waNumber").addEventListener("change",e=>{settings.wa=e.target.value.replace(/\D/g,"");save()});
+catsRender();renderProducts();updateCart();
+</script>
+<script>if ("serviceWorker" in navigator && location.protocol.startsWith("http")) { window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{})); }</script>
+</body>
+</html>
